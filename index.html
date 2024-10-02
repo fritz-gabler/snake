@@ -1,0 +1,173 @@
+<!-- *********************************************************************** -->
+<!--                                                                         -->
+<!--                                                      :::      ::::::::  -->
+<!-- index.html                                         :+:      :+:    :+:  -->
+<!--                                                  +:+ +:+         +:+    -->
+<!-- By: fgabler <marvin@42.fr>                     +#+  +:+       +#+       -->
+<!--                                              +#+#+#+#+#+   +#+          -->
+<!-- Created: 2024/10/01 13:31:15 by fgabler           #+#    #+#            -->
+<!-- Updated: 2024/10/01 23:17:30 by fgabler          ###   ########.fr      -->
+<!--                                                                         -->
+<!-- *********************************************************************** -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake</title>
+</head>
+<body>
+
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
+    canvas.width = 480;//window.innerWidth;
+    canvas.height = 480;// window.innerHeight;
+
+    let rows = 20;
+    let cols = 20;
+    let snake = [
+      {x: 2, y: 3},
+    ];
+    let food;
+    let cellWidth = canvas.width / cols;
+    let cellHeight = canvas.height / rows;
+    let direction = "LEFT";
+    let foodCollected = false;
+    placeFood();
+
+    draw();
+    setInterval(gameLoop, 200);
+    document.addEventListener('keydown', keyDown);
+
+
+
+    function draw() {
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+      ctx.fillStyle = 'yellow';
+      addElement(food.x, food.y);
+
+      ctx.fillStyle = 'white';
+
+      snake.forEach(part => addElement(part.x, part.y));
+
+      requestAnimationFrame(draw);
+    }
+
+    function addElement(x, y) {
+      ctx.fillRect((x * cellWidth), (y * cellHeight), (cellWidth - 1), (cellHeight - 1));
+    }
+
+    function shiftSnake() {
+      for (let i = (snake.length - 1); i > 0; i--) {
+        const part = snake[i];
+        const lastPart = snake[i - 1];
+
+        part.x = lastPart.x;
+        part.y = lastPart.y;
+      }
+    }
+    function gameLoop() {
+      checkForGameTermination();
+      replaceFood();
+      addToSnake();
+      shiftSnake();
+      changeDirection();
+    }
+
+    function keyDown(keybord) {
+      if (keybord.keyCode == 37) {
+        direction = 'LEFT';
+      }
+      else if (keybord.keyCode == 38) {
+        direction = 'UP';
+      }
+      else if (keybord.keyCode == 39) {
+        direction = 'RIGHT';
+      }
+      else if (keybord.keyCode == 40) {
+        direction = 'DOWN';
+      }
+    }
+
+    function changeDirection() {
+      if (direction == 'LEFT') {
+        snake[0].x--;
+      }
+      else if (direction == 'RIGHT') {
+        snake[0].x++;
+      }
+      else if (direction == 'UP') {
+        snake[0].y--;
+      }
+      else if (direction == 'DOWN') {
+        snake[0].y++;
+      }
+    }
+
+    function placeFood() {
+      let randomX = Math.floor(Math.random() * cols);
+      let randomY = Math.floor(Math.random() * rows);
+
+      food = {x: randomX, y: randomY};
+    }
+
+    function addToSnake() {
+      if (foodCollected == false)
+        return;
+      snake = [{x: snake[0].x, y: snake[0].y}, ...snake]
+      foodCollected = false;
+    }
+
+    function replaceFood() {
+      if (snake[0].x == food.x &&
+        snake[0].y == food.y) {
+        foodCollected = true;
+        placeFood();
+      }
+    }
+
+    function checkForGameTermination() {
+      if (isHittinWall() == true)
+        resetSnake();
+      else if (isBitingItSelf() == true)
+        resetSnake();
+    }
+
+    function resetSnake() {
+      placeFood();
+      snake = [
+        {x: 10, y: 10}
+      ]
+    }
+
+    function isHittinWall() {
+      if (snake[0].x < 0 ||
+        snake[0].x > cols - 1 ||
+        snake[0].y < 0 ||
+        snake[0].y > rows - 1)
+        return (true);
+      return (false)
+    }
+
+    function isBitingItSelf() {
+      let firtsPart = snake[0];
+      let otherParts = snake.slice(1);
+
+      if (otherParts.find(part => part.x == firtsPart.x && part.y == firtsPart.y) != undefined)
+        return (true);
+      return (false);
+    }
+
+  </script>
+
+</body>
+</html>
