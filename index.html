@@ -6,7 +6,7 @@
 <!-- By: fgabler <marvin@42.fr>                     +#+  +:+       +#+       -->
 <!--                                              +#+#+#+#+#+   +#+          -->
 <!-- Created: 2024/10/01 13:31:15 by fgabler           #+#    #+#            -->
-<!-- Updated: 2024/10/01 23:17:30 by fgabler          ###   ########.fr      -->
+<!-- Updated: 2024/10/04 00:51:14 by fgabler          ###   ########.fr      -->
 <!--                                                                         -->
 <!-- *********************************************************************** -->
 
@@ -38,12 +38,14 @@
     let cellWidth = canvas.width / cols;
     let cellHeight = canvas.height / rows;
     let direction = "LEFT";
+    let death = true;
     let foodCollected = false;
     placeFood();
 
     draw();
     setInterval(gameLoop, 200);
     document.addEventListener('keydown', keyDown);
+    document.addEventListener('keydown', restartGame);
 
 
 
@@ -52,13 +54,14 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 
-      ctx.fillStyle = 'yellow';
-      addElement(food.x, food.y);
-
-      ctx.fillStyle = 'white';
-
-      snake.forEach(part => addElement(part.x, part.y));
-
+      if (death == false) {
+        ctx.fillStyle = 'yellow';
+        addElement(food.x, food.y);
+        ctx.fillStyle = 'white';
+        snake.forEach(part => addElement(part.x, part.y));
+      }
+      else
+        drawDeathMessage();
       requestAnimationFrame(draw);
     }
 
@@ -81,6 +84,14 @@
       addToSnake();
       shiftSnake();
       changeDirection();
+    }
+
+
+    function restartGame() {
+      if (death == true) {
+        death = false;
+        resetSnake();
+      }
     }
 
     function keyDown(keybord) {
@@ -137,9 +148,9 @@
 
     function checkForGameTermination() {
       if (isHittinWall() == true)
-        resetSnake();
+        death = true;
       else if (isBitingItSelf() == true)
-        resetSnake();
+        death = true;
     }
 
     function resetSnake() {
@@ -167,6 +178,21 @@
       return (false);
     }
 
+    function drawDeathMessage() {
+      if (death == false)
+        return;
+            ctx.fillStyle = "red";
+      ctx.fillRect(0, (canvas.height / 4), canvas.width, (canvas.height / 2));
+      ctx.fillStyle = "black";
+      ctx.font = "30px Georgia";
+      var textString = "GAME IS OVER";
+      var textWidth = ctx.measureText(textString).width;
+      ctx.fillText(textString, (canvas.width / 2) - (textWidth / 2), 250);
+      ctx.font = "20px Georgia";
+      textString = "Press any key to restart";
+      textWidth = ctx.measureText(textString).width;
+      ctx.fillText(textString, (canvas.width / 2) - (textWidth / 2), ((canvas.height / 2) + 35));
+    }
   </script>
 
 </body>
