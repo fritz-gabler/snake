@@ -7,6 +7,8 @@ canvas.height = 480;// window.innerHeight;
 sideCanvas.width = 200;
 sideCanvas.height = 480;
 
+let hightScore;
+setHighscore();
 const snakeImg = new Image();
 
 snakeImg.src = "snake.png";
@@ -42,6 +44,7 @@ function draw() {
   if (death == false) {
     ctx.fillStyle = 'yellow';
     addElement(food.x, food.y);
+    updateHighscore();
     ctx.fillStyle = 'green';
     snake.forEach(part => addElement(part.x, part.y));
   }
@@ -69,6 +72,7 @@ function gameLoop() {
   addToSnake();
   shiftSnake();
   changeDirection();
+  moveThroughWall();
   updateSidebar();
 }
 
@@ -134,10 +138,19 @@ function replaceFood() {
 }
 
 function checkForGameTermination() {
-  if (isHittinWall() == true)
+  if (isBitingItSelf() == true)
     death = true;
-  else if (isBitingItSelf() == true)
-    death = true;
+}
+
+function moveThroughWall() {
+  if (snake[0].x < 0)
+    snake[0].x = cols - 1;
+  else if (snake[0].x >= cols)
+    snake[0].x = 0;
+  else if (snake[0].y < 0)
+    snake[0].y = rows - 1;
+  else if (snake[0].y >= rows)
+    snake[0].y = 0;
 }
 
 function resetSnake() {
@@ -196,6 +209,11 @@ function sidebarDraw() {
   sideCtx.font = "20px 'ArcadeClassic'";
   var lenText = "Snake   Lenght:   " + snakeLen.toString();
   sideCtx.fillText(lenText, 10, 30);
+
+  sideCtx.fillStyle = "black";
+  sideCtx.font = "20px 'ArcadeClassic'";
+  var lenText = "Highscore:   " + hightScore.toString();
+  sideCtx.fillText(lenText, 10, 50);
 }
 
 function updateSidebar() {
@@ -210,4 +228,24 @@ function updateSidebar() {
   sideCtx.font = "20px 'ArcadeClassic'";
   var lenText = "Snake   Lenght:   " + snakeLen.toString();
   sideCtx.fillText(lenText, 10, 30);
+
+  sideCtx.fillStyle = "black";
+  sideCtx.font = "20px 'ArcadeClassic'";
+  var lenText = "Highscore:   " + hightScore.toString();
+  sideCtx.fillText(lenText, 10, 50);
+}
+
+function setHighscore() {
+  if (window.localStorage.length == 0)
+    hightScore = 0;
+  else
+    hightScore = window.localStorage.getItem("hightScore");
+}
+
+function updateHighscore() {
+  if (snakeLen > hightScore) {
+    hightScore = snakeLen;
+    window.localStorage.clear;
+    window.localStorage.setItem("hightScore", hightScore);
+  }
 }
